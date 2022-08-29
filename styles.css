@@ -1,0 +1,170 @@
+body{
+
+    background-color:rgb(197, 74, 74);
+
+}
+h1 {
+    color: #2A1959;
+    border-bottom: 2px solid #2A1959;
+    text-align: center;
+    font-size: 43px;
+    font-family:"Lucida Console";
+}
+    h2 {
+    color:white;
+    font-family:'EB Garamond',serif ;
+    font-size: 18px;
+    text-align: left;
+    }
+    h3{
+        font-family:'Times New Roman', Times, serif;
+        font-size: 28px;
+    }
+    p{
+        text-align: justify;
+    }
+#wrapper{
+
+    background-color: white;
+
+    width: 1300px;
+
+    border:1px solid grey;
+
+    margin:0;
+
+    padding: 10px;
+
+}
+#header{
+
+    height:200px;
+
+    border:1px solid rgb(77, 73, 73);
+    background-image: url("university2.jpg");
+
+}
+
+
+#navigation
+
+{
+
+      height:60px;
+
+      border:1px solid grey;
+
+       margin:10px 0px;
+
+       background-color: rgb(83, 55, 55);
+
+}
+
+
+#navigation ul li{
+
+    list-style-type: none;
+
+    display:inline;
+
+    
+
+    margin-left:40px;
+
+}
+
+#navigation ul li a{
+
+    text-decoration: none;
+
+    background-color:rgb(163, 163, 163);
+
+    color:white;
+
+    padding:10px 20px;
+
+    font-size: 20px;
+
+    border-radius: 22px 0px;
+
+    text-shadow: 2px 2px 2px rgb(44, 166, 248);
+
+}
+
+#navigation ul li a:hover{
+
+    background-color:gold;
+
+    text-decoration: underline;
+
+}
+
+#body
+
+{
+
+     width:1000px;
+
+     border:1px solid grey;
+
+     float:left;
+
+     padding:10px;
+
+     margin-bottom:10px;
+
+}
+
+#sidebar
+
+{
+
+     margin-bottom:10px;
+
+        width:250px;
+
+        float:right;
+
+        height:600px;
+
+        border:1px solid grey;
+
+}
+
+#footer{
+
+      clear:both;
+
+      height:120px;
+
+      border:1px solid grey;
+
+      background-color:#05aae0;
+
+}
+.container {
+    display: flex;
+    align-items: center;
+    justify-content: center
+  }
+  
+  img {
+  max-width: 70%;
+  }
+  
+  .image {
+    flex-basis: 40%
+  }
+  
+  .text {
+    font-size: 20px;
+    padding-left: 20px;
+  }
+  a:link {
+    color:rgb(48, 1, 48);
+  }
+  
+  /* visited link */
+  a:hover {
+    color: rgb(243, 102, 125);
+  }
