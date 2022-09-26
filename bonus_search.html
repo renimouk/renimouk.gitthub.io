@@ -1,19 +1,57 @@
 <html>
 <head>
+    <meta charset='utf-8'>
+
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+
+    <title>Page Title</title>
+
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+
+    <link rel='stylesheet' type='text/css' media='screen' href='styles.css'>
+
+    <script src='main.js'></script>
+    
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
 </head>
 <body>
-    <div class="search">
-        <form>
-          <input type="text" id="searchField"/>
-          <button type="button" id="searchButton" onclick="searchFunction()">
-            Search
-        </button>
-        </form>
-      </div>
-    </div>
+    
+
+    <div id="wrapper">
+        <div id="header">
+   
+
+         </div>
+
+         <div id="navigation">
+
+             
+
+                <ul>
+
+                      
+                    <li><a href="index.html">Home</a></li>
+                 
+                    <li><a href="book_list.html">Milestone 1(a)</a></li>
+
+                    <li><a href="bonus_search.html">Milestone 1(b)</a></li>
+                 
+              
 
 
+                           </ul>
+
+         </div>
+         <div class="search">
+            <form>
+              <input type="text" id="searchField"/>
+              <button type="button" id="searchButton" onclick="searchFunction()">
+                Search
+            </button>
+            </form>
+          </div>
+        </div>
     <script>
         function searchFunction() {
             // Get search field content
@@ -38,5 +76,6 @@
         };
     </script>
 
-</body>
-</html>
+
+
+    
