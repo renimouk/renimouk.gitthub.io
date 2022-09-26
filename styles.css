@@ -1,24 +1,27 @@
 body{
 
-    background-color:rgb(197, 74, 74);
+    background-color:rgb(238, 184, 230);
 
 }
 h1 {
     color: #2A1959;
     border-bottom: 2px solid #2A1959;
     text-align: center;
-    font-size: 43px;
-    font-family:"Lucida Console";
+    letter-spacing: 5px;
+    font-size: 50px;
+    font-family: "Trirong", serif;
 }
+    
+
     h2 {
-    color:white;
+    color:rgb(53, 53, 53);
     font-family:'EB Garamond',serif ;
     font-size: 18px;
     text-align: left;
     }
     h3{
         font-family:'Times New Roman', Times, serif;
-        font-size: 28px;
+        font-size: 30px;
     }
     p{
         text-align: justify;
@@ -41,7 +44,7 @@ h1 {
     height:200px;
 
     border:1px solid rgb(77, 73, 73);
-   
+    background-image: url("university2.jpg");
 
 }
 
@@ -139,7 +142,7 @@ h1 {
 
       border:1px solid grey;
 
-      background-color:#05aae0;
+      background-color:#9bcddd;
 
 }
 .container {
