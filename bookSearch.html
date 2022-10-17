@@ -10,7 +10,7 @@
 
     <link rel="stylesheet" type="text/css" media="screen" href="styles.css" />
 
-    <script src="main.js"></script>
+    <!-- <script src="main.js"></script> -->
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
   </head>
@@ -29,11 +29,14 @@
         <div class="search">
           <form>
             <input type="text" id="searchField" />
-            <button type="button" id="searchButton" onclick="searchFunction()">Search</button>
+            <button type="button" id="searchButton" onclick="searchFunction2()">
+              Search
+            </button>
           </form>
         </div>
       </div>
     </div>
+
     <div
       id="results"
       style="
@@ -47,64 +50,298 @@
         width: 100%;
       "
     ></div>
-  </body>
-</html>
 
-<script>
-  const getISBN = (v) =>{
-    if(!v.industryIdentifiers) return "#"
-    let a  = v.industryIdentifiers[0].identifier || ""
-    return a
-  }
-  function searchFunction() {
-    // Get search field content
-    var searchQuery = $("#searchField").val();
-    $.getJSON("https://www.googleapis.com/books/v1/volumes?q=" + searchQuery + "&maxResults=40", function (response) {
-      //let r2 =   JSON.parse(response.items)
-      console.log("JSON Data: " + response.items);
-      // Loop through all the items one-by-one
-      $("#results").html("");
-      /*  var resultsInfo = $("<p></p>").text("Displaying " + response.items.length + " results");
-      $("#results").append(resultsInfo); */
+    <br />
 
-      response.items.forEach((item) => {
-        var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
-        console.log("item is : ", item);
-        console.log("volumeId is : ", volumeId);
-        
-        var v = item.volumeInfo; 
-        var authors = v["authors"]?.toString() || "...n/a";
-        var thumbnail =
-          v?.imageLinks?.thumbnail ||
-          "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
-        var image = $("<img src='" + thumbnail + "' width='200px' height='250px' style='border-radius:10px'></a>");
-         
-        document.querySelector("#results").innerHTML += `<div style=" width:200px ; margin:20px; margin-bottom:10px">
-          <a href="bookDetails.html?isbn=${getISBN(v)}">
+    <br />
+
+    
+      <nav class="pagination-container">
+        <button
+          class="pagination-button"
+          id="prev-button"
+          title="Previous page"
+          aria-label="Previous page"
+        >
+          &lt;
+        </button>
+
+        <div id="pagination-numbers"></div>
+
+        <button
+          class="pagination-button"
+          id="next-button"
+          title="Next page"
+          aria-label="Next page"
+        >
+          &gt;
+        </button>
+      </nav>
+
+    <script>
+      let dataItems
+
+      const getISBN = (v) => {
+        if (!v.industryIdentifiers) return '#'
+        let a = v.industryIdentifiers[0].identifier || ''
+        return a
+      }
+
+      function searchFunction2() {
+        let searchQuery = document.getElementById('searchField').value
+
+        console.log('searchQuery: ', searchQuery)
+
+        fetch(
+          'https://www.googleapis.com/books/v1/volumes?q=' +
+            searchQuery +
+            '&maxResults=40',
+        )
+          .then((response) => response.json())
+          .then((data) => {
+            console.log('data: ', data.items)
+
+            dataItems = data.items
+            dataItems.forEach((item) => {
+              var volumeId = item.selfLink.split(
+                'https://www.googleapis.com/books/v1/volumes/',
+              )[1]
+              console.log('item is : ', item)
+              console.log('volumeId is : ', volumeId)
+              var v = item.volumeInfo
+              var ISBN10 = v.industryIdentifiers[0].identifier
+              var authors = v['authors']?.toString() || '...n/a'
+              var thumbnail =
+                v?.imageLinks?.thumbnail ||
+                'https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226'
+
+              document.querySelector(
+                '#results',
+              ).innerHTML += `<div style=" width:200px ; margin:20px; margin-bottom:10px">
+          <a href="bookDetails.html?isbn=${ISBN10}">
             <img src=' ${thumbnail} ' width='200px' height='270px' style='border-radius:10px;  padding:10px; padding-left:0px; padding-right:0px'>
             </a>
-            <a><p href="bookDetails.html?isbn=${getISBN(v)}" style="text-align:center; font-weight: bold">${v["title"]}</p></a>
+            <a href="bookDetails.html?isbn=${ISBN10}"><p style="text-align:center; font-weight: bold">${v['title']}</p></a>
             <p style="text-align:center">${authors}</p>
-          </div>`;
-      });
+          </div>`
+            })
+            initialPageLoad()
+          })
+      }
 
-      /*  for (var i = 0; i < response.items.length; i++) {
-        // set the item from the response object
-        var item = response.items[i];
-        //console.log("item is : ",item);
-        var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
-        console.log("volumeId is : ", volumeId);
-        var v = item.volumeInfo;
-        var authors = v["authors"]?.toString() || "...n/a";
-        var thumbnail =
-          v?.imageLinks?.thumbnail ||
-          "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
-        var image = $("<img src='" + thumbnail + "' width='200px' height='250px' style='border-radius:10px'></a>");
-        var title = $("<p></p>").text(v["title"]);
-        var author = $("<p></p>").text("Authors: " + authors);
-        var lineBreak = $("<div style='border-width:1px; border: 1px solid #333; width:'100%'; opacity:0.2 '></div><br />");
-        $("#results").append(image, title, author, lineBreak);
-      } */
-    });
-  }
-</script>
+      const initialPageLoad = () => {
+        const paginationNumbers = document.getElementById('pagination-numbers')
+        const paginatedList = document.getElementById('results')
+        const nextButton = document.getElementById('next-button')
+        const prevButton = document.getElementById('prev-button')
+        const listItems = paginatedList.querySelectorAll('div')
+        const paginationLimit = 10
+        const pageCount = Math.ceil(listItems.length / paginationLimit)
+        let currentPage
+
+        const appendPageNumber = (index) => {
+          const pageNumber = document.createElement('button')
+          pageNumber.className = 'pagination-number'
+          pageNumber.innerHTML = index
+          pageNumber.setAttribute('page-index', index)
+          pageNumber.setAttribute('aria-label', 'Page ' + index)
+
+          paginationNumbers.appendChild(pageNumber)
+        }
+
+        const getPaginationNumbers = () => {
+          console.log('pageCount1: ', pageCount)
+          for (let i = 1; i <= pageCount; i++) {
+            console.log('pageCount2: ', pageCount)
+            appendPageNumber(i)
+          }
+        }
+
+        const handleActivePageNumber = () => {
+          document.querySelectorAll('.pagination-number').forEach((button) => {
+            button.classList.remove('active')
+
+            const pageIndex = Number(button.getAttribute('page-index'))
+            if (pageIndex == currentPage) {
+              button.classList.add('active')
+            }
+          })
+        }
+
+        const disableButton = (button) => {
+          button.classList.add('disabled')
+          button.setAttribute('disabled', true)
+        }
+
+        const enableButton = (button) => {
+          button.classList.remove('disabled')
+          button.removeAttribute('disabled')
+        }
+
+        const handlePageButtonsStatus = () => {
+          if (currentPage === 1) {
+            disableButton(prevButton)
+          } else {
+            enableButton(prevButton)
+          }
+
+          if (pageCount === currentPage) {
+            disableButton(nextButton)
+          } else {
+            enableButton(nextButton)
+          }
+        }
+
+        const setCurrentPage = (pageNum) => {
+          currentPage = pageNum
+
+          handleActivePageNumber()
+          handlePageButtonsStatus()
+
+          const prevRange = (pageNum - 1) * paginationLimit
+          const currRange = pageNum * paginationLimit
+
+          listItems.forEach((item, index) => {
+            //paginatedList.innerHTML = ''
+            if (index >= prevRange && index < currRange) {
+              console.log('index: ', index)
+              console.log('item: ', item)
+              //paginatedList.innerHTML = ''
+              //paginatedList.appendChild(item)
+            }
+          })
+        }
+
+        const loadPage = () => {
+          console.log('Load got called1')
+          getPaginationNumbers()
+          setCurrentPage(1)
+
+          prevButton.addEventListener('click', () => {
+            setCurrentPage(currentPage - 1)
+          })
+
+          nextButton.addEventListener('click', () => {
+            setCurrentPage(currentPage + 1)
+          })
+
+          document.querySelectorAll('.pagination-number').forEach((button) => {
+            const pageIndex = Number(button.getAttribute('page-index'))
+
+            if (pageIndex) {
+              button.addEventListener('click', () => {
+                setCurrentPage(pageIndex)
+              })
+            }
+          })
+        }
+
+        loadPage()
+      }
+    </script>
+    <!-- <script>
+      
+    
+      const paginationNumbers = document.getElementById('pagination-numbers')
+      const paginatedList = document.getElementById('paginated-list')
+      const listItems = paginatedList.querySelectorAll('li')
+      const nextButton = document.getElementById('next-button')
+      const prevButton = document.getElementById('prev-button')
+    
+      const paginationLimit = 10
+      const pageCount = Math.ceil(listItems.length / paginationLimit)
+      let currentPage
+    
+      const appendPageNumber = (index) => {
+        const pageNumber = document.createElement('button')
+        pageNumber.className = 'pagination-number'
+        pageNumber.innerHTML = index
+        pageNumber.setAttribute('page-index', index)
+        pageNumber.setAttribute('aria-label', 'Page ' + index)
+    
+        paginationNumbers.appendChild(pageNumber)
+      }
+    
+      const getPaginationNumbers = () => {
+        for (let i = 1; i <= pageCount; i++) {
+          appendPageNumber(i)
+        }
+      }
+    
+      window.addEventListener('load', () => {
+        getPaginationNumbers()
+        setCurrentPage(1)
+    
+        prevButton.addEventListener('click', () => {
+          setCurrentPage(currentPage - 1)
+        })
+    
+        nextButton.addEventListener('click', () => {
+          setCurrentPage(currentPage + 1)
+        })
+    
+        document.querySelectorAll('.pagination-number').forEach((button) => {
+          const pageIndex = Number(button.getAttribute('page-index'))
+    
+          if (pageIndex) {
+            button.addEventListener('click', () => {
+              setCurrentPage(pageIndex)
+            })
+          }
+        })
+      })
+    
+      const disableButton = (button) => {
+        button.classList.add('disabled')
+        button.setAttribute('disabled', true)
+      }
+    
+      const enableButton = (button) => {
+        button.classList.remove('disabled')
+        button.removeAttribute('disabled')
+      }
+    
+      const handlePageButtonsStatus = () => {
+        if (currentPage === 1) {
+          disableButton(prevButton)
+        } else {
+          enableButton(prevButton)
+        }
+    
+        if (pageCount === currentPage) {
+          disableButton(nextButton)
+        } else {
+          enableButton(nextButton)
+        }
+      }
+    
+      const handleActivePageNumber = () => {
+        document.querySelectorAll('.pagination-number').forEach((button) => {
+          button.classList.remove('active')
+    
+          const pageIndex = Number(button.getAttribute('page-index'))
+          if (pageIndex == currentPage) {
+            button.classList.add('active')
+          }
+        })
+      }
+    
+      const setCurrentPage = (pageNum) => {
+        currentPage = pageNum
+    
+        handleActivePageNumber()
+        handlePageButtonsStatus()
+    
+        const prevRange = (pageNum - 1) * paginationLimit
+        const currRange = pageNum * paginationLimit
+    
+        listItems.forEach((item, index) => {
+          item.classList.add('hidden')
+          if (index >= prevRange && index < currRange) {
+            item.classList.remove('hidden')
+          }
+        })
+      }
+    </script> -->
+  </body>
+</html>
