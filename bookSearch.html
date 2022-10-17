@@ -1,0 +1,110 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" media="screen" href="styles.css" />
+    <title>Page Title</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="styles.css" />
+
+    <script src="main.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  </head>
+  <body>
+    <div class="header">
+      <h1>Book Search</h1>
+    </div>
+
+    <div id="wrapper">
+      <div id="header"></div>
+      <div id="navigation">
+        <div class="topnav">
+          <a href="#">Home</a>
+          <a href="publicBookshelf.html">My Bookshelf</a>
+        </div>
+        <div class="search">
+          <form>
+            <input type="text" id="searchField" />
+            <button type="button" id="searchButton" onclick="searchFunction()">Search</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="results"
+      style="
+        display: flex;
+        justify-content: between;
+        flex-wrap: wrap;
+        color: #333;
+        font-family: 'Arial', sans-serif;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        width: 100%;
+      "
+    ></div>
+  </body>
+</html>
+
+<script>
+  const getISBN = (v) =>{
+    if(!v.industryIdentifiers) return "#"
+    let a  = v.industryIdentifiers[0].identifier || ""
+    return a
+  }
+  function searchFunction() {
+    // Get search field content
+    var searchQuery = $("#searchField").val();
+    $.getJSON("https://www.googleapis.com/books/v1/volumes?q=" + searchQuery + "&maxResults=40", function (response) {
+      //let r2 =   JSON.parse(response.items)
+      console.log("JSON Data: " + response.items);
+      // Loop through all the items one-by-one
+      $("#results").html("");
+      /*  var resultsInfo = $("<p></p>").text("Displaying " + response.items.length + " results");
+      $("#results").append(resultsInfo); */
+
+      response.items.forEach((item) => {
+        var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
+        console.log("item is : ", item);
+        console.log("volumeId is : ", volumeId);
+        
+        var v = item.volumeInfo; 
+        var authors = v["authors"]?.toString() || "...n/a";
+        var thumbnail =
+          v?.imageLinks?.thumbnail ||
+          "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
+        var image = $("<img src='" + thumbnail + "' width='200px' height='250px' style='border-radius:10px'></a>");
+         
+        document.querySelector("#results").innerHTML += `<div style=" width:200px ; margin:20px; margin-bottom:10px">
+          <a href="bookDetails.html?isbn=${getISBN(v)}">
+            <img src=' ${thumbnail} ' width='200px' height='270px' style='border-radius:10px;  padding:10px; padding-left:0px; padding-right:0px'>
+            </a>
+            <a><p href="bookDetails.html?isbn=${getISBN(v)}" style="text-align:center; font-weight: bold">${v["title"]}</p></a>
+            <p style="text-align:center">${authors}</p>
+          </div>`;
+      });
+
+      /*  for (var i = 0; i < response.items.length; i++) {
+        // set the item from the response object
+        var item = response.items[i];
+        //console.log("item is : ",item);
+        var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
+        console.log("volumeId is : ", volumeId);
+        var v = item.volumeInfo;
+        var authors = v["authors"]?.toString() || "...n/a";
+        var thumbnail =
+          v?.imageLinks?.thumbnail ||
+          "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
+        var image = $("<img src='" + thumbnail + "' width='200px' height='250px' style='border-radius:10px'></a>");
+        var title = $("<p></p>").text(v["title"]);
+        var author = $("<p></p>").text("Authors: " + authors);
+        var lineBreak = $("<div style='border-width:1px; border: 1px solid #333; width:'100%'; opacity:0.2 '></div><br />");
+        $("#results").append(image, title, author, lineBreak);
+      } */
+    });
+  }
+</script>

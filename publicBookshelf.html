@@ -1,0 +1,75 @@
+<html>
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body onload="getBookShelf()">
+    <div class="header">
+      <h1>Bookshelf</h1>
+    </div>
+
+    <div id="wrapper">
+      <div id="header"></div>
+      <div id="navigation">
+        <div class="topnav">
+          <a href="bookSearch.html">Home</a>
+          <a href="publicBookshelf.html">My Bookshelf</a>
+        </div>
+        <div class="search">
+          <form>
+            <input type="text" id="searchField" />
+            <button type="button" id="searchButton" onclick="searchFunction()">Search</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div
+      id="results"
+      style="
+        display: flex;
+        justify-content: between;
+        flex-wrap: wrap;
+        color: #333;
+        font-family: 'Arial', sans-serif;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        width: 100%;
+      "
+    ></div>
+  </body>
+</html>
+
+<script>
+  function getBookShelf() { 
+    fetch("https://www.googleapis.com/books/v1/users/117958533459769840170/bookshelves/1001/volumes")
+    .then(function (res) {
+    return res.json();
+  })
+  .then(function (response) {
+    items = response.items;
+    console.log(items);
+    response.items.forEach((item) => {
+        var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
+        console.log("item is : ", item);
+        console.log("volumeId is : ", volumeId);
+        var v = item.volumeInfo;
+        var ISBN10 = v.industryIdentifiers[0].identifier
+        var authors = v["authors"]?.toString() || "...n/a";
+        var thumbnail =
+          v?.imageLinks?.thumbnail ||
+          "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
+        
+        document.querySelector("#results").innerHTML += `<div style=" width:200px ; margin:20px; margin-bottom:10px">
+          <a href="bookDetails.html?isbn=${ISBN10}">
+            <img src=' ${thumbnail} ' width='200px' height='270px' style='border-radius:10px;  padding:10px; padding-left:0px; padding-right:0px'>
+            </a>
+            <a href="bookDetails.html?isbn=${ISBN10}"><p style="text-align:center; font-weight: bold">${v["title"]}</p></a>
+            <p style="text-align:center">${authors}</p>
+          </div>`;
+      });
+  }),
+  function (error) {
+    console.log(error);
+  };
+  }
+</script>
