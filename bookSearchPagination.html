@@ -1,0 +1,321 @@
+<html>
+  <head>
+    <meta charset="utf-8" />
+
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <link rel="stylesheet" type="text/css" media="screen" href="styles.css" />
+    <title>Page Title</title>
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="styles.css" />
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  </head>
+  <body onload="getBookShelf()">
+    <div class="header">
+      <h1>Milestone 3</h1>
+    </div>
+
+    <div id="wrapper">
+      <div id="header"></div>
+      <div id="navigation" style="padding: 20px">
+        <div class="search">
+          <form>
+            <input type="text" id="searchField" />
+            <button type="button" id="searchButton" onclick="searchFunction()">Search</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div style="position: relative">
+      <ul
+        id="paginated-list"
+        data-current-page="1"
+        aria-live="polite"
+        style="
+          list-style-type: none;
+          display: flex;
+          justify-content: between;
+          flex-wrap: wrap;
+          color: #333;
+          font-family: 'Arial', sans-serif;
+          padding-bottom: 10px;
+          padding-left: 20px;
+          width: 100%;
+          padding: 1rem 1rem 3rem;
+        "
+      ></ul>
+
+      <div id="book-description"></div>
+
+      <nav class="pagination-container">
+        <button class="pagination-button" id="prev-button" aria-label="Previous page" title="Previous page">&lt;</button>
+
+        <div id="pagination-numbers"></div>
+
+        <button class="pagination-button" id="next-button" aria-label="Next page" title="Next page">&gt;</button>
+      </nav>
+    </div>
+    <div style="width: 100%; padding: 30px">
+      <h1>My Book Shelf</h1>
+    </div>
+    <div
+      id="bookshelf"
+      style="
+        display: flex;
+        justify-content: between;
+        flex-wrap: wrap;
+        color: #333;
+        font-family: 'Arial', sans-serif;
+        padding-bottom: 10px;
+        padding-left: 20px;
+        width: 100%;
+      "
+    ></div>
+    <div id="my-book-description"></div>
+  </body>
+</html>
+<script>
+  const paginationNumbers = document.getElementById("pagination-numbers");
+  const paginatedList = document.getElementById("paginated-list");
+  let listItems;
+  const nextButton = document.getElementById("next-button");
+  const prevButton = document.getElementById("prev-button");
+
+  const paginationLimit = 10;
+  let pageCount = 1;
+  let currentPage = 1;
+
+  const disableButton = (button) => {
+    button.classList.add("disabled");
+    button.setAttribute("disabled", true);
+  };
+
+  const enableButton = (button) => {
+    button.classList.remove("disabled");
+    button.removeAttribute("disabled");
+  };
+
+  const handlePageButtonsStatus = () => {
+    if (currentPage === 1) {
+      disableButton(prevButton);
+    } else {
+      enableButton(prevButton);
+    }
+
+    if (pageCount === currentPage) {
+      disableButton(nextButton);
+    } else {
+      enableButton(nextButton);
+    }
+  };
+
+  const handleActivePageNumber = () => {
+    document.querySelectorAll(".pagination-number").forEach((button) => {
+      button.classList.remove("active");
+      const pageIndex = Number(button.getAttribute("page-index"));
+      if (pageIndex == currentPage) {
+        button.classList.add("active");
+      }
+    });
+  };
+
+  const appendPageNumber = (index) => {
+    const pageNumber = document.createElement("button");
+    pageNumber.className = "pagination-number";
+    pageNumber.innerHTML = index;
+    pageNumber.setAttribute("page-index", index);
+    pageNumber.setAttribute("aria-label", "Page " + index);
+    paginationNumbers.appendChild(pageNumber);
+  };
+
+  const getPaginationNumbers = () => {
+    console.log("pagecount in getPaginationNumbers is ", pageCount);
+    for (let i = 1; i <= pageCount; i++) {
+      appendPageNumber(i);
+    }
+  };
+
+  const setCurrentPage = (pageNum) => {
+    currentPage = pageNum;
+
+    handleActivePageNumber();
+    handlePageButtonsStatus();
+
+    const prevRange = (pageNum - 1) * paginationLimit;
+    const currRange = pageNum * paginationLimit;
+
+    listItems.forEach((item, index) => {
+      item.classList.add("hidden");
+      if (index >= prevRange && index < currRange) {
+        item.classList.remove("hidden");
+      }
+    });
+  };
+
+  const BeginPaginate = () => {
+    console.log("loading...");
+    getPaginationNumbers();
+    setCurrentPage(1);
+
+    prevButton.addEventListener("click", () => {
+      setCurrentPage(currentPage - 1);
+    });
+
+    nextButton.addEventListener("click", () => {
+      setCurrentPage(currentPage + 1);
+    });
+
+    document.querySelectorAll(".pagination-number").forEach((button) => {
+      const pageIndex = Number(button.getAttribute("page-index"));
+      if (pageIndex) {
+        button.addEventListener("click", () => {
+          setCurrentPage(pageIndex);
+        });
+      }
+    });
+  };
+</script>
+<script>
+  function getBookVolume(isbn, id) {
+    console.log("isbn received ", isbn);
+    // const queryString = window.location.search;
+    // const urlParams = new URLSearchParams(queryString);
+    // const isbn = urlParams.get("isbn");
+    if (!isbn || isbn == "#" || isbn.includes('UOM:')) {
+      document.querySelector(id).innerHTML = `<div style=" width:100% ; margin:20px; margin-bottom:10px"> 
+             <p style="text-align:left; font-weight: bold">
+              Sorry! No Book data available  - Invalid ISBN
+              </p>  
+          </div>`;
+          return
+    }
+    let el = "";
+    console.log(isbn); 
+    let ISBN = isbn 
+    try {
+      fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`)
+        .then(function (res) {
+          return res.json();
+        })
+        .then(function (result) {
+          items = result.items;
+          console.log(items);
+          result.items.forEach((item) => {
+            var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
+            console.log("item is : ", item);
+            console.log("volumeId is : ", volumeId);
+            var v = item.volumeInfo;
+            var ISBN10 = v.industryIdentifiers[0].identifier;
+            var authors = v["authors"]?.toString() || "...n/a";
+            var subtitle = v.subtitle;
+            var saleInfo = item.saleInfo;
+            var thumbnail =
+              v?.imageLinks?.thumbnail ||
+              "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
+
+            document.querySelector(id).innerHTML = `<div style=" width:100% ; margin:20px; margin-bottom:10px"> 
+            <img src=' ${thumbnail} ' width='200px' height='270px' style='border-radius:10px;  padding:10px; padding-left:0px; padding-right:0px'>
+             <p style="text-align:left; font-weight: bold">Title: ${v["title"]}</p> 
+            <p style="text-align:left, font-size: 10px">Authors: ${authors}</p>
+            <p style="text-align:left; font-weight: 600px">Title: ${v?.subtitle || "..."}</p> 
+            <p style="text-align:left; font-weight: bold">Title: Sale Info : </p>
+            <p style="text-align:left; "> country : ${saleInfo?.country || "..."} </p>
+            <p style="text-align:left;  "> ebook : ${saleInfo?.isEbook.toString() || "..."} </p>
+            <p style="text-align:left; "> saleability : ${saleInfo?.saleability || "..."}</p>
+          </div>`;
+          });
+        }),
+        function (error) {
+          console.log(error);
+        };
+    } catch (err) {
+      document.querySelector(id).innerHTML = `<div style=" width:100% ; margin:20px; margin-bottom:10px"> 
+             <p style="text-align:left; font-weight: bold">
+              Sorry! No Book data available  
+              </p>  
+              <p>${err.toString()}</p>
+          </div>`;
+    }
+  }
+</script>
+<script>
+  const getISBN = (v) => {
+    console.log("v received is ", v);
+    if (!v.industryIdentifiers) return "#";
+    let a = v.industryIdentifiers[0].identifier || "";
+    console.log("a being sent back is ", a);
+    return a;
+  };
+  function searchFunction() {
+    pageCount = 0;
+    document.querySelector("#paginated-list").innerHTML =""
+    pageCount = 1;
+    currentPage = 1;
+    // Get search field content
+    var searchQuery = $("#searchField").val();
+    $.getJSON("https://www.googleapis.com/books/v1/volumes?q=" + searchQuery + "&maxResults=40", function (response) {
+      $("#results").html("");
+
+      response.items.forEach((item) => {
+        var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
+        //console.log("item is : ", item);
+        //  console.log("volumeId is : ", volumeId);
+        var v = item.volumeInfo;
+        var authors = v["authors"]?.toString() || "...n/a";
+        var thumbnail =
+          v?.imageLinks?.thumbnail ||
+          "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
+        var image = $("<img src='" + thumbnail + "' width='200px' height='250px' style='border-radius:10px'></a>");
+
+        document.querySelector("#paginated-list").innerHTML += `<li style=" width:200px ; margin:20px; margin-bottom:10px">
+          <div   onclick="getBookVolume('${getISBN(v)}','#book-description')">
+            <img src=' ${thumbnail} ' width='200px' height='270px' style='border-radius:10px;  padding:10px; padding-left:0px; padding-right:0px'>
+            </div>
+            <a><p href="bookDetails.html?isbn=${getISBN(v)}" style="text-align:center; font-weight: bold">${v["title"]}</p></a>
+            <p style="text-align:center">${authors}</p>
+          </li>`;
+      });
+      listItems = paginatedList.querySelectorAll("li");
+      pageCount = Math.ceil(listItems.length / paginationLimit);
+      console.log("pageCount is ", pageCount);
+      BeginPaginate();
+    });
+  }
+</script>
+<script>
+  function getBookShelf() {
+    fetch("https://www.googleapis.com/books/v1/users/117958533459769840170/bookshelves/1001/volumes")
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (response) {
+        items = response.items;
+        console.log(items);
+        response.items.forEach((item) => {
+          var volumeId = item.selfLink.split("https://www.googleapis.com/books/v1/volumes/")[1];
+          console.log("item is : ", item);
+          console.log("volumeId is : ", volumeId);
+          var v = item.volumeInfo;
+          var ISBN10 = v.industryIdentifiers[0].identifier;
+          var authors = v["authors"]?.toString() || "...n/a";
+          var thumbnail =
+            v?.imageLinks?.thumbnail ||
+            "https://img.freepik.com/free-psd/isolated-white-book-cover_125540-1190.jpg?w=1800&t=st=1665855581~exp=1665856181~hmac=7aec73965f8f7277c7193f66fab76a779969f45713788547cfea1d3e5520e226";
+
+          document.querySelector("#bookshelf").innerHTML += `<div style=" width:200px ; margin:20px; margin-bottom:10px">
+           
+            <div onclick="getBookVolume('${ISBN10}','#my-book-description')">
+            <img src=' ${thumbnail} ' width='200px' height='270px' style='border-radius:10px;  padding:10px; padding-left:0px; padding-right:0px'>
+            </div>
+            <a href="bookDetails.html?isbn=${ISBN10}"><p style="text-align:center; font-weight: bold">${v["title"]}</p></a>
+            <p style="text-align:center">${authors}</p>
+          </div>`;
+        });
+      }),
+      function (error) {
+        console.log(error);
+      };
+  }
+</script>
